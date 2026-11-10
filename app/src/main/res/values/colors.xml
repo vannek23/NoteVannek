@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_soft">#E0E5EC</color>
+    <color name="shadow_dark">#A3B1C6</color>
+    <color name="shadow_light">#FFFFFF</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#555555</color>
+    <color name="accent_blue">#3B82F6</color>
+    <color name="white">#FFFFFF</color>
+</resources>

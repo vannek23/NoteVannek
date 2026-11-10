@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">NoteVannek</string>
+    <string name="add_note">Добавить заметку</string>
+    <string name="add_row">Добавить строку</string>
+    <string name="empty_state_title">Пока нет заметок</string>
+    <string name="empty_state_subtitle">Нажмите +, чтобы создать первую</string>
+    <string name="empty_state_icon">📝</string>
+    <string name="row_number_format">%1$d.</string>
+    <string name="hint_title">Заголовок</string>
+    <string name="hint_text">Текст</string>
+    <string name="hint_zero">0</string>
+</resources>
