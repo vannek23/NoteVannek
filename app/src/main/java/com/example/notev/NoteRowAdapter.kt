@@ -1,5 +1,7 @@
 package com.example.notev
 
+import android.annotation.SuppressLint
+import android.graphics.Paint
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -7,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class NoteRowAdapter(
@@ -16,12 +19,19 @@ class NoteRowAdapter(
 ) : RecyclerView.Adapter<NoteRowAdapter.RowViewHolder>() {
 
     private var rows: MutableList<NoteRow> = mutableListOf()
+    private var isCheckModeEnabled = false
 
-    // Подавляем предупреждение, так как для EditText это самый безопасный способ загрузки
-    @Suppress("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged")
     fun submitList(newRows: List<NoteRow>) {
         rows.clear()
         rows.addAll(newRows)
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setCheckMode(enabled: Boolean) {
+        android.util.Log.d("CHECK_DEBUG", "2. Адаптер получил команду: $enabled")
+        isCheckModeEnabled = enabled
         notifyDataSetChanged()
     }
 
@@ -42,7 +52,8 @@ class NoteRowAdapter(
     fun getRows(): List<NoteRow> = rows
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RowViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_note_row, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_note_row, parent, false)
         return RowViewHolder(view)
     }
 
@@ -56,6 +67,7 @@ class NoteRowAdapter(
         private val tvNumber: TextView = itemView.findViewById(R.id.tvRowNumber)
         private val etText: EditText = itemView.findViewById(R.id.etRowText)
         private val etSum: EditText = itemView.findViewById(R.id.etRowSum)
+        private val tvEmoji: TextView = itemView.findViewById(R.id.tvRowEmoji)
 
         private val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -99,15 +111,26 @@ class NoteRowAdapter(
             etText.isLongClickable = false
             etSum.isLongClickable = false
 
-            // НОВЫЙ БЛОК: Убираем прыжок на заголовок при нажатии "Готово"
             etSum.setOnEditorActionListener { view, actionId, _ ->
                 if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
                     view.clearFocus()
-                    val imm = view.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    val imm =
+                        view.context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
                     imm.hideSoftInputFromWindow(view.windowToken, 0)
                     true
                 } else {
                     false
+                }
+            }
+
+            tvEmoji.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+                    val row = rows.getOrNull(pos) ?: return@setOnClickListener
+                    val updatedRow = row.copy(isChecked = !row.isChecked)
+                    rows[pos] = updatedRow
+                    onRowUpdated(updatedRow)
+                    notifyItemChanged(pos)
                 }
             }
 
@@ -124,6 +147,10 @@ class NoteRowAdapter(
         }
 
         fun bind(row: NoteRow, position: Int) {
+            android.util.Log.d(
+                "CHECK_DEBUG",
+                "3. Перерисовка строки $position. Режим сверки: $isCheckModeEnabled"
+            )
             tvNumber.text = itemView.context.getString(R.string.row_number_format, position + 1)
 
             val params = itemView.layoutParams as ViewGroup.MarginLayoutParams
@@ -145,6 +172,40 @@ class NoteRowAdapter(
             }
             if (etSum.text.toString() != row.sum) {
                 etSum.setText(row.sum)
+            }
+
+            if (isCheckModeEnabled) {
+                etSum.visibility = View.GONE
+                tvEmoji.visibility = View.VISIBLE
+
+                if (row.isChecked) {
+                    tvEmoji.text = "😊"
+                    etText.paintFlags = etText.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    etText.setTextColor(
+                        ContextCompat.getColor(
+                            itemView.context,
+                            R.color.text_secondary
+                        )
+                    )
+                } else {
+                    tvEmoji.text = "⚪"
+                    etText.paintFlags = etText.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                    etText.setTextColor(
+                        ContextCompat.getColor(
+                            itemView.context,
+                            R.color.text_primary
+                        )
+                    )
+                }
+
+                etText.isEnabled = false
+            } else {
+                etSum.visibility = View.VISIBLE
+                tvEmoji.visibility = View.GONE
+
+                etText.paintFlags = etText.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                etText.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_primary))
+                etText.isEnabled = true
             }
 
             etText.addTextChangedListener(textWatcher)

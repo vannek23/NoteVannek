@@ -9,5 +9,6 @@ data class NoteRow(
     val noteId: Int,
     val text: String,
     val sum: String,
-    val position: Int
+    val position: Int,
+    val isChecked: Boolean = false
 )

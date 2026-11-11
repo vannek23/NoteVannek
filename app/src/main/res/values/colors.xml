@@ -7,4 +7,5 @@
     <color name="text_secondary">#555555</color>
     <color name="accent_blue">#3B82F6</color>
     <color name="white">#FFFFFF</color>
+    <color name="switch_check_thumb">#4CAF50</color>
 </resources>

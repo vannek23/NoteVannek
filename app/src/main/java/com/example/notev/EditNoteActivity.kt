@@ -47,13 +47,16 @@ class EditNoteActivity : AppCompatActivity() {
         )
         window.isNavigationBarContrastEnforced = false
         window.navigationBarColor = getColor(R.color.bg_soft)
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars =
+            true
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars =
+            true
 
         setContentView(R.layout.activity_edit_note)
 
         db = AppDatabase.getDatabase(this)
 
+        val switchCheckMode = findViewById<SwitchMaterial>(R.id.switchCheckMode)
         val toolbar = findViewById<Toolbar>(R.id.toolbarEdit)
         tvDate = findViewById(R.id.tvDate)
         etTitle = findViewById(R.id.etTitle)
@@ -131,20 +134,27 @@ class EditNoteActivity : AppCompatActivity() {
             }
         }
 
+        switchCheckMode.setOnCheckedChangeListener { _, isChecked ->
+            rowAdapter.setCheckMode(isChecked)
+            recyclerView.clearFocus()
+        }
+
         fabAddRow.setOnClickListener {
             val currentRows = rowAdapter.getRows()
 
             if (currentRows.isNotEmpty()) {
                 val lastRow = currentRows.last()
                 if (lastRow.text.trim().isEmpty() && lastRow.sum.trim().isEmpty()) {
-                    Toast.makeText(this, "Сначала заполните предыдущую строку", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Сначала заполните предыдущую строку", Toast.LENGTH_SHORT)
+                        .show()
                     return@setOnClickListener
                 }
             }
 
             lifecycleScope.launch {
                 val newPosition = currentRows.size + 1
-                val newRow = NoteRow(noteId = currentNoteId, text = "", sum = "", position = newPosition)
+                val newRow =
+                    NoteRow(noteId = currentNoteId, text = "", sum = "", position = newPosition)
                 val id = db.noteDao().insertRow(newRow)
                 rowAdapter.addRow(newRow.copy(id = id.toInt()))
                 recyclerView.postDelayed({
@@ -191,7 +201,6 @@ class EditNoteActivity : AppCompatActivity() {
                 if (etTitle.text.toString() != note.title) {
                     etTitle.setText(note.title)
                 }
-                // Обновляем ползунок при загрузке (без вызова слушателя)
                 switchDiscount.isChecked = note.isDiscountApplied
             }
             val rows = db.noteDao().getRowsForNote(currentNoteId).first()
@@ -226,7 +235,8 @@ class EditNoteActivity : AppCompatActivity() {
         val dateString = dateFormat.format(now)
         val dayFormat = SimpleDateFormat("EE", Locale.forLanguageTag("ru"))
         var dayOfWeek = dayFormat.format(now)
-        dayOfWeek = dayOfWeek.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        dayOfWeek =
+            dayOfWeek.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         return "$dateString.$dayOfWeek."
     }
 }

@@ -14,17 +14,16 @@ class EmojiRainView @JvmOverloads constructor(
 
     private val emojis = listOf("🍊", "😊", "🚀", "💸", "🍕", "😎", "🔥", "✨", "👾", "💻")
 
-    private val columnCount = 15 // Чуть уменьшили количество колонн, чтобы не было каши
+    private val columnCount = 15
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textSize = 75f
         textAlign = Paint.Align.CENTER
     }
 
     private val bgPaint = Paint().apply {
-        color = "#E6000000".toColorInt() // Темный фон
+        color = "#E6000000".toColorInt()
     }
 
-    // Класс, описывающий одну падающую струю (колонну)
     private class Column(
         val x: Float,
         var y: Float,
@@ -56,9 +55,8 @@ class EmojiRainView @JvmOverloads constructor(
         for (i in 0 until columnCount) {
             val x = i * columnWidth + (columnWidth / 2)
             val speed = Random.nextFloat() * 10f + 8f
-            val length = Random.nextInt(4, 9) // Длина хвоста от 4 до 8 смайликов
+            val length = Random.nextInt(4, 9)
 
-            // Начальная позиция - случайно выше экрана, чтобы они падали не одновременно
             val startY = -Random.nextFloat() * viewHeight - 100f
 
             val column = Column(x, startY, speed, length)
@@ -71,7 +69,6 @@ class EmojiRainView @JvmOverloads constructor(
         isRaining = true
         visibility = VISIBLE
 
-        // Ждем, пока View получит реальные размеры, и только потом создаем колонны
         post {
             if (width > 0 && height > 0) {
                 if (columns.isEmpty()) {
@@ -92,13 +89,11 @@ class EmojiRainView @JvmOverloads constructor(
 
         if (!isRaining) return
 
-        // Рисуем темный фон (он перекрывает предыдущий кадр, создавая чистый холст)
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
 
         for (col in columns) {
             col.y += col.speed
 
-            // Если хвост колонны полностью ушел за экран, перезапускаем её сверху
             if (col.y - (col.length * paint.textSize) > height) {
                 col.y = -paint.textSize
                 col.speed = Random.nextFloat() * 10f + 8f
@@ -106,12 +101,9 @@ class EmojiRainView @JvmOverloads constructor(
                 col.resetChars(emojis)
             }
 
-            // Рисуем хвост: от головы (i=0) к концу (i=length-1)
             for (i in 0 until col.length) {
-                // Вычисляем Y для каждого смайлика в хвосте (с отступом вверх)
                 val charY = col.y - (i * paint.textSize * 1.1f)
 
-                // Вычисляем прозрачность: голова яркая (255), хвост затухает
                 val alpha = (255 - (i * (200 / col.length))).coerceAtLeast(40)
 
                 paint.alpha = alpha

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Темная тень (снизу-справа) -->
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="24dp" />
@@ -8,7 +7,7 @@
             <padding android:bottom="4dp" android:right="4dp" />
         </shape>
     </item>
-    <!-- Светлый блик (сверху-слева) -->
+
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="24dp" />
@@ -16,7 +15,7 @@
             <padding android:top="4dp" android:left="4dp" />
         </shape>
     </item>
-    <!-- Сама карточка -->
+
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="24dp" />

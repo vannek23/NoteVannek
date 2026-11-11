@@ -9,4 +9,5 @@
     <string name="hint_title">Заголовок</string>
     <string name="hint_text">Текст</string>
     <string name="hint_zero">0</string>
+    <string name="emoji_check">😊</string>
 </resources>

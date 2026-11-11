@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         fabAddNote.addPressScaleAnimation()
         val emptyStateLayout = findViewById<LinearLayout>(R.id.emptyStateLayout)
 
-        // --- ПАСХАЛКА ---
         val emojiRainView = findViewById<EmojiRainView>(R.id.emojiRainView)
         val titleContainer = findViewById<android.widget.FrameLayout>(R.id.titleContainer)
         var clickCount = 0
@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
 
         titleContainer.setOnClickListener {
             val currentTime = System.currentTimeMillis()
-            // Если прошло больше 1.5 секунд с последнего клика, счетчик сбрасывается
             if (currentTime - lastClickTime > 1500) {
                 clickCount = 0
             }
@@ -57,15 +56,18 @@ class MainActivity : AppCompatActivity() {
             lastClickTime = currentTime
 
             if (clickCount == 5) {
-                // Запускаем дождь из смайликов
                 emojiRainView.startRain()
 
-                // Останавливаем через 7 секунд
+                val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+                windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
+                windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
                 android.os.Handler(mainLooper).postDelayed({
                     emojiRainView.stopRain()
+                    windowInsetsController.show(WindowInsetsCompat.Type.navigationBars())
                 }, 15000)
 
-                clickCount = 0 // Сбрасываем счетчик
+                clickCount = 0
             }
         }
 
